@@ -1,0 +1,3 @@
+der =red
+die =green
+das =brown

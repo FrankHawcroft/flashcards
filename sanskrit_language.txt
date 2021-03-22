@@ -1,0 +1,2 @@
+Sanskrit=English
+Sanskrit 2003=serif

@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- Template for flash cards page. -->
+<!-- Use genfc.pl to generate page source from this file and phrases.txt. -->
+<!-- FH, 1-May-08, 6-May-08, 7-May-08, 8-Jan-09 -->
+<!-- v0.1: initial version. -->
+<!-- v0.2: * improved 'random' selection of phrases so they don't repeat. -->
+<!--       * work on fonts, layout, etc. -->
+<!-- v0.3: * improvement to the random sequencing to remove extra array. -->
+<!-- v0.4: * support different coloured backgrounds for answers. -->
+<!-- v0.5: * fixed changing of background colours.  For some reason -->
+<!--         .style['background-color'] doesn't work, but -->
+<!--         .style.backgroundColor works (in FF 3).  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Flash Cards v0.5</title>
+<script language="JavaScript">
+/*<![CDATA[*/
+var lang = ['Deutsch',
+'English'];
+var phrase = [['abwischen',
+'to erase'],
+['an der Ecke',
+'on the corner'],
+['das Angebot, -e',
+'offer, special'],
+['anrufen (sep)',
+'to call'],
+['auch',
+'also, too, as well'],
+['auf',
+'on (+ dat)'],
+['ausgehen (sep)',
+'to go out'],
+['das Bein, -e',
+'leg'],
+['bekommen',
+'to receive'],
+['billig',
+'cheap'],
+['damals',
+'then, at that time'],
+['dein',
+'your [informal]'],
+['denken',
+'to think'],
+['deshalb',
+'because of that, since, therefore'],
+['einkaufen',
+'to go shopping'],
+['erlauben',
+'to allow'],
+['erz&auml;hlen',
+'to tell'],
+['fertig',
+'ready, finished'],
+['dazu',
+'to this (contraction)'],
+['die Forelle, -n',
+'trout'],
+['fragen',
+'to ask'],
+['Freut mich!',
+'Pleased to meet you!'],
+['die Gabel',
+'fork'],
+['gegen&uuml;ber',
+'opposite (+ dat)'],
+['geradeaus',
+'straight ahead'],
+['gern',
+'like, enjoy (adv, comes after inf. of verb)'],
+['gie&szlig;en',
+'to pour'],
+['glatt',
+'straight (of hair)'],
+['glauben',
+'to think, believe'],
+['gleich',
+'alike'],
+['der Hals, -&auml;-e',
+'neck'],
+['hinter',
+'behind (+ dat)'],
+['Ihr',
+'your [formal]'],
+['die Katze, -n',
+'cat'],
+['die Kellnerin',
+'waitress'],
+['der Korb, -&ouml;-',
+'basket'],
+['k&ouml;stlich',
+'delicious'],
+['das Kraut, -&uuml;-er',
+'herb'],
+['der Kugelschreiber, -',
+'ball-point pen'],
+['der (die?) Kunde, -n',
+'customer'],
+['lockig',
+'curly'],
+['das Messer',
+'knife'],
+['die M&ouml;hre, -n',
+'carrot'],
+['nach',
+'after'],
+['neben',
+'next to (+ dat)'],
+['probieren',
+'to try'],
+['das Rathaus',
+'town hall'],
+['der Schalter, -',
+'switch'],
+['der Spa&szlig;, -es, -&auml;-e',
+'fun'],
+['die Speise, -n',
+'dish (of food)'],
+['der Stuhl, -&uuml;-e',
+'chair'],
+['das Tier, -e',
+'animal'],
+['der Turm, -&uuml;-e',
+'tower'],
+['die Unterhaltung',
+'conversation'],
+['&uuml;ben',
+'to practise'],
+['viele',
+'many'],
+['vor',
+'in front of (+ dat)'],
+['warten',
+'to wait (+ auf + acc: to wait for)'],
+['welch(er)',
+'which'],
+['wer?',
+'who?'],
+['wieviel?',
+'how many?'],
+['Wir backen einen Kuchen in der K&uuml;che.',
+'We bake a cake in the kitchen.'],
+['wohnen',
+'to live, dwell, inhabit'],
+['die Wolke, -n',
+'cloud'],
+['zum Beispiel',
+'for example'],
+['zwischen',
+'between (+ dat)']];
+var colour = [['der ',
+'red'],
+['die ',
+'green'],
+['das ',
+'brown']];
+
+// Prepare random sequence of phrases (fixed once page is loaded ...)
+//var sequence = new Array(phrase.length);
+var nextPhrase = 0;
+
+//for(var i = 0; i < sequence.length; i++)
+//  sequence[i] = i;
+for(var i = 0; i < phrase.length; i++)
+  swap(phrase, getRandomInt(0, phrase.length - 1), 
+       getRandomInt(0, phrase.length - 1));
+
+//alert(sequence.join(', '));
+
+function swap(a, i, j) {
+  var x = a[i];
+  a[i] = a[j];
+  a[j] = x;
+}
+
+// Pinched from http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Math:random
+// Returns a random integer between min and max
+// Using Math.round() will give you a non-uniform distribution!
+function getRandomInt(min, max)
+{
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generate() {
+  // Get language and phrase to display.
+  var whichLang = getRandomInt(0, 1);
+  var whichPhrase = nextPhrase; // sequence[nextPhraseSeq]; // next in the sequence
+    // getRandomInt(0, phrase.length - 1); // (previous code)
+  //nextPhraseSeq = (nextPhraseSeq + 1) % sequence.length; // move along
+  nextPhrase = (nextPhrase + 1) % phrase.length; // move along
+
+  var fromLang = lang[whichLang];
+  var toLang = lang[1 - whichLang];
+  var fromPhrase = phrase[whichPhrase][whichLang];
+  var toPhrase = phrase[whichPhrase][1 - whichLang];
+
+  document.getElementById('from').innerHTML = fromLang;
+  document.getElementById('to').innerHTML = toLang;
+  
+  document.getElementById('fromphrase').innerHTML = fromPhrase;
+  document.getElementById('fromphrase').style.backgroundColor
+    = getBackgroundColour(fromPhrase);
+
+  document.getElementById('answer').innerHTML = toPhrase;
+
+  // Hide the answer.
+  reveal('hide');
+}
+
+function reveal(state) {
+  if(state == 'hide') {
+    document.getElementById('answer').style.visibility = 'hidden';
+    document.getElementById('tophrase').style.backgroundColor 
+      = document.getElementById('answer').style.backgroundColor
+      = 'cornflowerblue';
+    if(document.getElementById('showAnswer').hasAttribute('disabled'))
+      document.getElementById('showAnswer').removeAttribute('disabled');
+  } else {
+    document.getElementById('answer').style.visibility = 'visible';
+    document.getElementById('tophrase').style.backgroundColor 
+      = document.getElementById('answer').style.backgroundColor
+      = getBackgroundColour(document.getElementById('answer').innerHTML);
+    document.getElementById('showAnswer').setAttribute('disabled', '');
+  }
+}
+
+function getBackgroundColour(text) {
+  //alert(text);
+  for(var i = 0; i < colour.length; i++) {
+    if(text.indexOf(colour[i][0]) == 0) { // prefix
+      //alert(colour[i][1]);
+      return colour[i][1]; // colour
+    }
+  }
+  //alert('end of fcn');
+  return 'cornflowerblue'; // default
+}
+
+/*]]>*/
+</script>
+<style type="text/css">
+/*<![CDATA[*/
+div.language {
+  /*font-weight: bold;*/
+  /*float: left;*/
+  color: darkgray;
+  background-color: lightseagreen;
+  border: medium solid white;
+  font-size: 200%;
+  text-align: center;
+  width: 30%;
+}
+
+div.phrase {
+  /*float: right;*/
+  background-color: cornflowerblue;
+  border: medium solid white;
+  /*color: navyblue;*/
+  font-size: 200%;
+  text-align: center;
+  width: 30%;
+}
+
+div.buttons {
+  width: 30%;
+  text-align: center;
+}
+/*]]>*/
+</style>
+</head>
+<body onload="generate();">
+<form>
+<div id="from" class="language"></div>
+<div id="fromphrase" class="phrase"></div><br/>
+<div id="to" class="language"></div>
+<div id="tophrase" class="phrase">
+  <span id="answer" style="visibility: hidden;"/>
+</div><br/>
+<div class="buttons">
+  <input type="button" id="showAnswer" name="showAnswer" value="Show Answer!" onclick="reveal('show');"/>
+  <input type="button" name="refresh" value="Another One!" onclick="generate();"/>
+</div>
+</form>
+</body>
+</html>
